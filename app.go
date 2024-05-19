@@ -7,6 +7,7 @@ import (
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Stack struct {
@@ -48,6 +49,15 @@ func initDB(db *gorm.DB) {
 	}
 }
 
+func (s *Stack) BeforeDelete(db *gorm.DB) error {
+	result := db.Clauses(clause.Returning{}).Where("stack_id = ?", s.ID).Delete(&Task{})
+	if result.Error != nil {
+		log.Println("Failed to delete tasks:", result.Error)
+		return result.Error
+	}
+	return nil
+}
+
 // startup is called at application startup
 func (a *App) startup(ctx context.Context) {
 	// Perform your setup here
@@ -71,7 +81,9 @@ func (a *App) CreateStack(name string) (uint, error) {
 }
 
 func (a *App) DeleteStack(stackID uint) (uint, error) {
-	result := a.db.Delete(&Stack{}, stackID)
+	stack := &Stack{}
+	stack.ID = stackID
+	result := a.db.Delete(stack)
 	if result.Error != nil {
 		log.Println("Failed to delete stack:", result.Error)
 		return 0, result.Error
