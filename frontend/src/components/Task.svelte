@@ -11,13 +11,13 @@
     function deleteTask() {
         DeleteTask(task.ID).then(() => {
             dispatch("delete", task.ID)
-        })
+        }).catch((error) => dispatch("error", error))
     }
 
     function toggleDone() {
         UpdateTaskDone(task.ID, !task.done).then(() => {
             dispatch("done", task.ID)
-        })
+        }).catch((error) => dispatch("error", error))
     }
 </script>
 

@@ -6,6 +6,8 @@
     import {
         initializeStores,
         Modal,
+        Toast,
+        getToastStore,
         getModalStore,
         TabGroup,
         Tab,
@@ -28,18 +30,30 @@
     const tabSet = writable(0)
     const stacks = writable([])
     const modal = getModalStore()
+    const toast = getToastStore()
 
-    GetStacks().then((result) => {
-        $stacks = result.sort((a, b) => a.order - b.order)
-    })
+    function catchError(error) {
+        toast.trigger({
+            message: error,
+            background: "variant-filled-error",
+        })
+    }
+
+    GetStacks()
+        .then((result) => {
+            $stacks = result.sort((a, b) => a.order - b.order)
+        })
+        .catch(catchError)
 
     $: if ($tabSet !== null && $stacks.length > 0) {
         const stack = $stacks[$tabSet]
         if (!stack.tasks || stack.invalid) {
-            GetStack(stack.ID).then((s) => {
-                s.invalid = false
-                $stacks[$tabSet] = s
-            })
+            GetStack(stack.ID)
+                .then((s) => {
+                    s.invalid = false
+                    $stacks[$tabSet] = s
+                })
+                .catch(catchError)
         }
     }
 
@@ -53,16 +67,18 @@
                     return
                 }
                 const order = $stacks[$stacks.length - 1].order + 1
-                CreateStack(text).then((result) => {
-                    $stacks = [
-                        ...$stacks,
-                        {
-                            ID: result,
-                            name: text,
-                            order,
-                        },
-                    ]
-                })
+                CreateStack(text)
+                    .then((result) => {
+                        $stacks = [
+                            ...$stacks,
+                            {
+                                ID: result,
+                                name: text,
+                                order,
+                            },
+                        ]
+                    })
+                    .catch(catchError)
             },
         })
     }
@@ -91,6 +107,7 @@
     }
 </script>
 
+<Toast />
 <Modal />
 <main class="flex h-screen w-full flex-col overflow-hidden">
     <TabGroup>
@@ -110,6 +127,7 @@
                     on:edit={stackEdited}
                     on:delete={stackDeleted}
                     on:invalidate={stackInvalidated}
+                    on:error={({ detail: error }) => catchError(error)}
                     stack={$stacks[$tabSet]}
                     {modal}
                 />

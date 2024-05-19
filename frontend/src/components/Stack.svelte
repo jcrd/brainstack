@@ -47,17 +47,19 @@
                 }
                 const order =
                     tasks.length > 0 ? tasks[tasks.length - 1].order + 1 : 0
-                AddTask(stack.ID, text, order).then((taskID) => {
-                    tasks = [
-                        ...tasks,
-                        {
-                            ID: taskID,
-                            stack_id: stack.ID,
-                            order,
-                            text,
-                        },
-                    ]
-                })
+                AddTask(stack.ID, text, order)
+                    .then((taskID) => {
+                        tasks = [
+                            ...tasks,
+                            {
+                                ID: taskID,
+                                stack_id: stack.ID,
+                                order,
+                                text,
+                            },
+                        ]
+                    })
+                    .catch((error) => dispatch("error", error))
             },
         })
     }
@@ -72,14 +74,16 @@
                 if (!text) {
                     return
                 }
-                EditTask(task.ID, text).then(() => {
-                    tasks = tasks.map((t) => {
-                        if (t.ID == task.ID) {
-                            t.text = text
-                        }
-                        return t
+                EditTask(task.ID, text)
+                    .then(() => {
+                        tasks = tasks.map((t) => {
+                            if (t.ID == task.ID) {
+                                t.text = text
+                            }
+                            return t
+                        })
                     })
-                })
+                    .catch((error) => dispatch("error", error))
             },
         })
     }
@@ -101,9 +105,11 @@
             task.order = i
             return task
         })
-        ReorderTasks(items).then((result) => {
-            tasks = [...result, ...tasksDone]
-        })
+        ReorderTasks(items)
+            .then((result) => {
+                tasks = [...result, ...tasksDone]
+            })
+            .catch((error) => dispatch("error", error))
     }
 
     const stackPopup = {
@@ -122,12 +128,14 @@
                 if (!text) {
                     return
                 }
-                EditStack(stack.ID, text).then(() => {
-                    dispatch("edit", {
-                        stackID: stack.ID,
-                        name: text,
+                EditStack(stack.ID, text)
+                    .then(() => {
+                        dispatch("edit", {
+                            stackID: stack.ID,
+                            name: text,
+                        })
                     })
-                })
+                    .catch((error) => dispatch("error", error))
             },
         })
     }
@@ -138,9 +146,11 @@
             title: "Are you sure you want to delete this stack?",
             response: (state) => {
                 if (state) {
-                    DeleteStack(stack.ID).then(() => {
-                        dispatch("delete", stack.ID)
-                    })
+                    DeleteStack(stack.ID)
+                        .then(() => {
+                            dispatch("delete", stack.ID)
+                        })
+                        .catch((error) => dispatch("error", error))
                 }
             },
         })
@@ -179,6 +189,7 @@
                     on:delete={taskDeleted}
                     on:edit={taskEdit}
                     on:done={taskDone}
+                    on:error={(error) => dispatch("error", error)}
                     {task}
                 />
             {/each}
@@ -188,7 +199,12 @@
         <h1 class="badge variant-filled w-min">Done</h1>
         <ul class="flex flex-col gap-4">
             {#each tasksDone as task (task.ID)}
-                <Task on:delete={taskDeleted} on:done={taskDone} {task} />
+                <Task
+                    on:delete={taskDeleted}
+                    on:done={taskDone}
+                    on:error={(error) => dispatch("error", error)}
+                    {task}
+                />
             {/each}
         </ul>
     {/if}
