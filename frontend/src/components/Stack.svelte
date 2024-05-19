@@ -157,7 +157,7 @@
     }
 </script>
 
-<div class="flex flex-col gap-4 mx-8 max-h-screen overflow-auto pb-20">
+<div class="flex flex-col gap-4 mx-8 max-h-screen overflow-auto pb-20 p-1">
     <div data-popup="stackPopup">
         <div class="btn-group-vertical variant-filled">
             <button on:click={editStack}>
@@ -179,7 +179,7 @@
     {#if tasksTodo.length}
         <h1 class="badge variant-filled w-min">Todo</h1>
         <ul
-            use:dndzone={{ items: tasksTodo, dropTargetStyle: {} }}
+            use:dndzone={{ items: tasksTodo }}
             on:consider={handleDndConsider}
             on:finalize={handleDndFinalize}
             class="flex flex-col gap-4"
