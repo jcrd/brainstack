@@ -14,6 +14,8 @@ export function EditStack(arg1:number,arg2:string):Promise<number>;
 
 export function EditTask(arg1:number,arg2:string):Promise<number>;
 
+export function GetStack(arg1:number):Promise<main.Stack>;
+
 export function GetStacks():Promise<Array<main.Stack>>;
 
 export function ReorderTasks(arg1:Array<main.Task>):Promise<Array<main.Task>>;

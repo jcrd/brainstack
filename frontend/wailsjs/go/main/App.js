@@ -26,6 +26,10 @@ export function EditTask(arg1, arg2) {
   return window['go']['main']['App']['EditTask'](arg1, arg2);
 }
 
+export function GetStack(arg1) {
+  return window['go']['main']['App']['GetStack'](arg1);
+}
+
 export function GetStacks() {
   return window['go']['main']['App']['GetStacks']();
 }

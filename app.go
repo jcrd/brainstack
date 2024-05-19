@@ -90,12 +90,22 @@ func (a *App) EditStack(stackID uint, name string) (uint, error) {
 
 func (a *App) GetStacks() ([]Stack, error) {
 	var stacks []Stack
-	result := a.db.Preload("Tasks").Find(&stacks)
+	result := a.db.Find(&stacks)
 	if result.Error != nil {
 		log.Println("Failed to get stacks:", result.Error)
 		return stacks, result.Error
 	}
 	return stacks, nil
+}
+
+func (a *App) GetStack(id uint) (Stack, error) {
+	var stack Stack
+	result := a.db.Preload("Tasks").First(&stack, id)
+	if result.Error != nil {
+		log.Println("Failed to get stack:", result.Error)
+		return stack, result.Error
+	}
+	return stack, nil
 }
 
 func (a *App) AddTask(stackID uint, text string, order uint) (uint, error) {

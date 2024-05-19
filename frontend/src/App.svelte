@@ -1,7 +1,7 @@
 <script>
     // @ts-nocheck
 
-    import { GetStacks, CreateStack } from "../wailsjs/go/main/App"
+    import { GetStack, GetStacks, CreateStack } from "../wailsjs/go/main/App"
     import { writable } from "svelte/store"
     import {
         initializeStores,
@@ -32,6 +32,16 @@
     GetStacks().then((result) => {
         $stacks = result.sort((a, b) => a.order - b.order)
     })
+
+    $: if ($tabSet !== null && $stacks.length > 0) {
+        const stack = $stacks[$tabSet]
+        if (!stack.tasks || stack.invalid) {
+            GetStack(stack.ID).then((s) => {
+                s.invalid = false
+                $stacks[$tabSet] = s
+            })
+        }
+    }
 
     function addStack() {
         modal.trigger({
@@ -70,6 +80,15 @@
         $stacks = $stacks.filter((s) => s.ID != stackID)
         $tabSet = 0
     }
+
+    function stackInvalidated({ detail: stackID }) {
+        $stacks.forEach((s) => {
+            if (s.ID === stackID) {
+                s.invalid = true
+                return
+            }
+        })
+    }
 </script>
 
 <Modal />
@@ -87,7 +106,13 @@
         </button>
         <svelte:fragment slot="panel">
             {#if $stacks.length}
-                <Stack on:edit={stackEdited} on:delete={stackDeleted} stack={$stacks[$tabSet]} {modal} />
+                <Stack
+                    on:edit={stackEdited}
+                    on:delete={stackDeleted}
+                    on:invalidate={stackInvalidated}
+                    stack={$stacks[$tabSet]}
+                    {modal}
+                />
             {/if}
         </svelte:fragment>
     </TabGroup>

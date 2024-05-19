@@ -31,6 +31,11 @@
     $: tasksDone = tasks.filter((t) => t.done)
     $: tasksTodo = tasks.filter((t) => !t.done)
 
+    $: {
+        tasks
+        dispatch("invalidate", stack.ID)
+    }
+
     function addTask() {
         modal.trigger({
             type: "prompt",
@@ -97,7 +102,7 @@
             return task
         })
         ReorderTasks(items).then((result) => {
-            tasksTodo = result
+            tasks = [...result, ...tasksDone]
         })
     }
 
