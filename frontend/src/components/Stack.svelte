@@ -13,12 +13,8 @@
         dndzone,
         overrideItemIdKeyNameBeforeInitialisingDndZones,
     } from "svelte-dnd-action"
-    import { popup } from "@skeletonlabs/skeleton"
-    import AddIcon from "~icons/material-symbols/add"
-    import MenuIcon from "~icons/material-symbols/menu-rounded"
-    import DeleteIcon from "~icons/material-symbols/delete-forever-outline-rounded"
-    import EditIcon from "~icons/material-symbols/edit"
     import Task from "./Task.svelte"
+    import ButtonBar from "./ButtonBar.svelte"
 
     export let stack
     export let modal
@@ -112,12 +108,6 @@
             .catch((error) => dispatch("error", error))
     }
 
-    const stackPopup = {
-        event: "click",
-        target: "stackPopup",
-        placement: "left",
-    }
-
     function editStack() {
         modal.trigger({
             type: "prompt",
@@ -158,24 +148,7 @@
 </script>
 
 <div class="flex flex-col gap-4 mx-8 max-h-screen overflow-auto pb-20 p-1">
-    <div data-popup="stackPopup">
-        <div class="btn-group-vertical variant-filled">
-            <button on:click={editStack}>
-                <EditIcon />
-                <span>Edit</span>
-            </button>
-            <button on:click={deleteStack}>
-                <DeleteIcon />
-                <span>Delete</span>
-            </button>
-        </div>
-        <div class="arrow variant-filled"></div>
-    </div>
-    <div class="flex justify-end">
-        <button use:popup={stackPopup} class="btn-icon variant-filled">
-            <MenuIcon />
-        </button>
-    </div>
+    <ButtonBar data={{addTask, editStack, deleteStack}} />
     {#if tasksTodo.length}
         <h1 class="badge variant-filled w-min">Todo</h1>
         <ul
@@ -208,11 +181,4 @@
             {/each}
         </ul>
     {/if}
-    <button
-        on:click={addTask}
-        type="button"
-        class="btn-icon btn-icon-lg variant-filled fixed bottom-8 right-8"
-    >
-        <AddIcon style="font-size: 1.25em;" />
-    </button>
 </div>
