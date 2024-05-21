@@ -1,46 +1,45 @@
 <script>
-    import { UpdateTaskDone, DeleteTask } from "../../wailsjs/go/main/App"
+    import { DeleteTask } from "../../wailsjs/go/main/App"
     import { createEventDispatcher } from "svelte"
     import DeleteIcon from "~icons/material-symbols/delete-forever-outline-rounded"
     import EditIcon from "~icons/material-symbols/edit"
+    import UndoIcon from "~icons/material-symbols/undo-rounded"
 
     export let task
 
     const dispatch = createEventDispatcher()
 
     function deleteTask() {
-        DeleteTask(task.ID).then(() => {
-            dispatch("delete", task.ID)
-        }).catch((error) => dispatch("error", error))
-    }
-
-    function toggleDone() {
-        UpdateTaskDone(task.ID, !task.done).then(() => {
-            dispatch("done", task.ID)
-        }).catch((error) => dispatch("error", error))
+        DeleteTask(task.ID)
+            .then(() => {
+                dispatch("delete", task.ID)
+            })
+            .catch((error) => dispatch("error", error))
     }
 </script>
 
-<li class="card flex items-center justify-between px-4 py-8">
-    <input
-        on:click={toggleDone}
-        class="checkbox"
-        type="checkbox"
-        bind:checked={task.done}
-    />
-    <span class="flex-1 flex justify-center">
+<li class="card flex items-center px-4 py-8">
+    <span class="flex-1">
         {task.text}
     </span>
     <div class="flex">
-        <button
-            class:invisible={task.done}
-            on:click={() => dispatch("edit", task)}
-            type="button"
-            class="btn-icon bg-initial"
-        >
-            <EditIcon style="color:gray" />
-        </button>
-        <button on:click={deleteTask} type="button" class="btn-icon bg-initial">
+        {#if task.done}
+            <button
+                on:click={() =>
+                    dispatch("done", { taskID: task.ID, done: false })}
+                class="btn-icon bg-initial"
+            >
+                <UndoIcon style="color:gray;font-size:1.25em" />
+            </button>
+        {:else}
+            <button
+                on:click={() => dispatch("edit", task)}
+                class="btn-icon bg-initial"
+            >
+                <EditIcon style="color:gray" />
+            </button>
+        {/if}
+        <button on:click={deleteTask} class="btn-icon bg-initial">
             <DeleteIcon style="color:gray" />
         </button>
     </div>

@@ -5,6 +5,7 @@
         AddTask,
         EditTask,
         ReorderTasks,
+        UpdateTaskDone,
         EditStack,
         DeleteStack,
     } from "../../wailsjs/go/main/App"
@@ -88,8 +89,23 @@
         tasks = tasks.filter((t) => t.ID != taskID)
     }
 
-    function taskDone() {
-        tasks = tasks
+    function taskDone({ detail: { taskID, done } }) {
+        UpdateTaskDone(taskID, done)
+            .then(() => {
+                tasks = tasks.map((t) => {
+                    if (t.ID === taskID) {
+                        t.done = done
+                    }
+                    return t
+                })
+            })
+            .catch((error) => dispatch("error", error))
+    }
+
+    function nextTask() {
+        if (tasksTodo.length > 0) {
+            taskDone({ detail: { taskID: tasksTodo[0].ID, done: true } })
+        }
     }
 
     function handleDndConsider(e) {
@@ -148,7 +164,7 @@
 </script>
 
 <div class="flex flex-col gap-4 mx-8 max-h-screen overflow-auto pb-20 p-1">
-    <ButtonBar data={{addTask, editStack, deleteStack}} />
+    <ButtonBar data={{ addTask, nextTask, editStack, deleteStack }} />
     {#if tasksTodo.length}
         <h1 class="badge variant-filled w-min">Todo</h1>
         <ul

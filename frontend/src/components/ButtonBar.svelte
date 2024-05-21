@@ -6,10 +6,11 @@
     import MenuIcon from "~icons/material-symbols/menu-rounded"
     import DeleteIcon from "~icons/material-symbols/delete-forever-outline-rounded"
     import EditIcon from "~icons/material-symbols/edit"
+    import DoneIcon from '~icons/material-symbols/done-rounded'
 
     export let data
 
-    let { addTask, editStack, deleteStack } = data
+    let { addTask, nextTask, editStack, deleteStack } = data
 
     const stackPopup = {
         event: "click",
@@ -34,6 +35,9 @@
 <div class="flex justify-between">
     <button use:popup={stackPopup} class="btn-icon btn-icon-lg variant-filled">
         <MenuIcon />
+    </button>
+    <button on:click={nextTask} class="btn-icon btn-icon-lg variant-filled">
+        <DoneIcon style="font-size: 1.25em;" />
     </button>
     <button on:click={addTask} class="btn-icon btn-icon-lg variant-filled">
         <AddIcon style="font-size: 1.25em;" />
