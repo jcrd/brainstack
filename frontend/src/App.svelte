@@ -94,8 +94,14 @@
     }
 
     function stackDeleted({ detail: stackID }) {
-        $stacks = $stacks.filter((s) => s.ID != stackID)
-        $tabSet = 0
+        let nearest = 0
+        $stacks = $stacks.filter((s, i) => {
+            if (s.ID != stackID) {
+                nearest = i
+                return true
+            }
+        })
+        $tabSet = nearest
     }
 
     function stackInvalidated({ detail: stackID }) {
