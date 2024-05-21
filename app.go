@@ -28,12 +28,13 @@ type Task struct {
 // App struct
 type App struct {
 	ctx context.Context
+	dbPath string
 	db *gorm.DB
 }
 
 // NewApp creates a new App application struct
-func NewApp() *App {
-	return &App{}
+func NewApp(dbPath string) *App {
+	return &App{dbPath: dbPath}
 }
 
 func initDB(db *gorm.DB) {
@@ -58,11 +59,9 @@ func (s *Stack) BeforeDelete(db *gorm.DB) error {
 	return nil
 }
 
-// startup is called at application startup
 func (a *App) startup(ctx context.Context) {
-	// Perform your setup here
 	a.ctx = ctx
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err := gorm.Open(sqlite.Open(a.dbPath), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")
 	}

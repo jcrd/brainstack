@@ -5,6 +5,7 @@ go 1.21
 toolchain go1.22.2
 
 require (
+	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/wailsapp/wails/v2 v2.8.1
 	gorm.io/driver/sqlite v1.5.5
 	gorm.io/gorm v1.25.10
