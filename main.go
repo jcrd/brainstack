@@ -20,7 +20,6 @@ func main() {
 		Title:  "brainstack",
 		Width:  525,
 		Height: 768,
-		Frameless: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},
