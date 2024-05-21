@@ -4,6 +4,7 @@
     import DeleteIcon from "~icons/material-symbols/delete-forever-outline-rounded"
     import EditIcon from "~icons/material-symbols/edit"
     import UndoIcon from "~icons/material-symbols/undo-rounded"
+    import PromoteIcon from "~icons/material-symbols/arrow-upward"
 
     export let task
 
@@ -32,6 +33,12 @@
                 <UndoIcon style="color:gray;font-size:1.25em" />
             </button>
         {:else}
+            <button
+                on:click={() => dispatch("promote", task)}
+                class="btn-icon bg-initial"
+            >
+                <PromoteIcon style="color:gray" />
+            </button>
             <button
                 on:click={() => dispatch("edit", task)}
                 class="btn-icon bg-initial"

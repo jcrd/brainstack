@@ -85,6 +85,18 @@
         })
     }
 
+    function reorderTasks(items) {
+        items = items.map((task, i) => {
+            task.order = i
+            return task
+        })
+        ReorderTasks(items)
+            .then((result) => {
+                tasks = [...result, ...tasksDone]
+            })
+            .catch((error) => dispatch("error", error))
+    }
+
     function taskDeleted({ detail: taskID }) {
         tasks = tasks.filter((t) => t.ID != taskID)
     }
@@ -108,20 +120,17 @@
         }
     }
 
+    function taskPromoted({ detail: task }) {
+        const items = [task, ...tasksTodo.filter((t) => t.ID != task.ID)]
+        reorderTasks(items)
+    }
+
     function handleDndConsider(e) {
         tasksTodo = e.detail.items
     }
 
     function handleDndFinalize(e) {
-        const items = e.detail.items.map((task, i) => {
-            task.order = i
-            return task
-        })
-        ReorderTasks(items)
-            .then((result) => {
-                tasks = [...result, ...tasksDone]
-            })
-            .catch((error) => dispatch("error", error))
+        reorderTasks(e.detail.items)
     }
 
     function editStack() {
@@ -175,6 +184,7 @@
         >
             {#each tasksTodo as task (task.ID)}
                 <Task
+                    on:promote={taskPromoted}
                     on:delete={taskDeleted}
                     on:edit={taskEdit}
                     on:done={taskDone}
