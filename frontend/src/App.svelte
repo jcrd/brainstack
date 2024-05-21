@@ -77,6 +77,7 @@
                                 order,
                             },
                         ]
+                        $tabSet = $stacks.length - 1
                     })
                     .catch(catchError)
             },
