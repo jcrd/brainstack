@@ -22,7 +22,9 @@
 <div data-popup="stackPopup">
     <div class="btn-group-vertical variant-filled">
         <button on:click={editStack}>
-            <EditIcon />
+            <div class="-ml-4">
+                <EditIcon />
+            </div>
             <span>Edit</span>
         </button>
         <button on:click={deleteStack}>
