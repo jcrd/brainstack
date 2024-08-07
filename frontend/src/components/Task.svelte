@@ -4,6 +4,7 @@
     import DeleteIcon from "~icons/material-symbols/delete-forever-outline-rounded"
     import UndoIcon from "~icons/material-symbols/undo-rounded"
     import PromoteIcon from "~icons/material-symbols/arrow-upward"
+    import DragIcon from '~icons/material-symbols/drag-indicator'
 
     export let task
 
@@ -25,7 +26,16 @@
     }
 </script>
 
-<li class="card flex items-center px-4 py-1">
+<li class="card flex items-center gap-2 px-4 py-1">
+    <div class="flex">
+        <DragIcon style="color:gray" />
+    </div>
+    <input
+        class="checkbox"
+        type="checkbox"
+        bind:checked={task.done}
+        on:click={() => dispatch("done", { taskID: task.ID, done: !task.done })}
+    />
     <span class="flex-1">
         <div contenteditable="true" bind:textContent={taskText}>{task.text}</div>
     </span>
