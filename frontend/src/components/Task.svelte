@@ -2,8 +2,6 @@
     import { DeleteTask } from "../../wailsjs/go/main/App"
     import { createEventDispatcher } from "svelte"
     import DeleteIcon from "~icons/material-symbols/delete-forever-outline-rounded"
-    import UndoIcon from "~icons/material-symbols/undo-rounded"
-    import PromoteIcon from "~icons/material-symbols/arrow-upward"
     import DragIcon from '~icons/material-symbols/drag-indicator'
 
     export let task
@@ -26,36 +24,20 @@
     }
 </script>
 
-<li class="card flex items-center gap-2 px-4 py-1">
-    <div class="flex">
+<li class="card flex items-center justify-between gap-2 px-4 py-1">
+    <div class="flex items-center">
         <DragIcon style="color:gray" />
     </div>
-    <input
-        class="checkbox"
-        type="checkbox"
-        bind:checked={task.done}
-        on:click={() => dispatch("done", { taskID: task.ID, done: !task.done })}
-    />
-    <span class="flex-1">
-        <div contenteditable="true" bind:textContent={taskText}>{task.text}</div>
-    </span>
+    <div class="flex-1 flex gap-2 items-center">
+        <input
+            class="checkbox"
+            type="checkbox"
+            bind:checked={task.done}
+            on:click={() => dispatch("done", { taskID: task.ID, done: !task.done })}
+        />
+        <div class="flex-1" contenteditable="true" bind:textContent={taskText}>{task.text}</div>
+    </div>
     <div class="flex">
-        {#if task.done}
-            <button
-                on:click={() =>
-                    dispatch("done", { taskID: task.ID, done: false })}
-                class="btn-icon bg-initial"
-            >
-                <UndoIcon style="color:gray;font-size:1.25em" />
-            </button>
-        {:else}
-            <button
-                on:click={() => dispatch("promote", task)}
-                class="btn-icon bg-initial"
-            >
-                <PromoteIcon style="color:gray" />
-            </button>
-        {/if}
         <button on:click={deleteTask} class="btn-icon bg-initial">
             <DeleteIcon style="color:gray" />
         </button>
