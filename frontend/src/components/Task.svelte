@@ -24,7 +24,7 @@
     }
 </script>
 
-<li class="card flex items-center justify-between gap-2 px-4 py-1">
+<li class="group flex items-center justify-between gap-2">
     <div class="flex items-center">
         <DragIcon style="color:gray" />
     </div>
@@ -37,8 +37,8 @@
         />
         <div class="flex-1" contenteditable="true" bind:textContent={taskText}>{task.text}</div>
     </div>
-    <div class="flex">
-        <button on:click={deleteTask} class="btn-icon bg-initial">
+    <div class="flex items-center w-4 h-4">
+        <button on:click={deleteTask} class="btn-icon bg-initial hidden group-hover:block">
             <DeleteIcon style="color:gray" />
         </button>
     </div>
