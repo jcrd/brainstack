@@ -4,5 +4,5 @@ Version=1.0
 Name=brainstack
 Comment=No-frills task management
 Path=/opt/brainstack
-Exec=brainstack
+Exec=bin/brainstack
 Icon=brainstack
