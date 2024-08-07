@@ -62,27 +62,8 @@
     }
 
     function taskEdit({ detail: task }) {
-        modal.trigger({
-            type: "prompt",
-            title: "Edit task",
-            value: task.text,
-            valueAttr: { type: "text", required: true },
-            response: (text) => {
-                if (!text) {
-                    return
-                }
-                EditTask(task.ID, text)
-                    .then(() => {
-                        tasks = tasks.map((t) => {
-                            if (t.ID == task.ID) {
-                                t.text = text
-                            }
-                            return t
-                        })
-                    })
-                    .catch((error) => dispatch("error", error))
-            },
-        })
+        EditTask(task.ID, task.text)
+            .catch((error) => dispatch("error", error))
     }
 
     function reorderTasks(items) {

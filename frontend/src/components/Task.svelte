@@ -2,13 +2,19 @@
     import { DeleteTask } from "../../wailsjs/go/main/App"
     import { createEventDispatcher } from "svelte"
     import DeleteIcon from "~icons/material-symbols/delete-forever-outline-rounded"
-    import EditIcon from "~icons/material-symbols/edit"
     import UndoIcon from "~icons/material-symbols/undo-rounded"
     import PromoteIcon from "~icons/material-symbols/arrow-upward"
 
     export let task
 
+    let taskText = task.text
+
     const dispatch = createEventDispatcher()
+
+    $: if (taskText && taskText !== task.text) {
+        task.text = taskText
+        dispatch("edit", task)
+    }
 
     function deleteTask() {
         DeleteTask(task.ID)
@@ -19,9 +25,9 @@
     }
 </script>
 
-<li class="card flex items-center px-4 py-8">
+<li class="card flex items-center px-4 py-1">
     <span class="flex-1">
-        {task.text}
+        <div contenteditable="true" bind:textContent={taskText}>{task.text}</div>
     </span>
     <div class="flex">
         {#if task.done}
@@ -38,12 +44,6 @@
                 class="btn-icon bg-initial"
             >
                 <PromoteIcon style="color:gray" />
-            </button>
-            <button
-                on:click={() => dispatch("edit", task)}
-                class="btn-icon bg-initial"
-            >
-                <EditIcon style="color:gray" />
             </button>
         {/if}
         <button on:click={deleteTask} class="btn-icon bg-initial">
