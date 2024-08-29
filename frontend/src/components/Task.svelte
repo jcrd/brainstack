@@ -25,7 +25,7 @@
 </script>
 
 <li class="group flex items-center justify-between gap-2">
-    <div class="flex items-center">
+    <div class="flex items-center w-5 h-5">
         <DragIcon style="color:gray" />
     </div>
     <div class="flex-1 flex gap-2 items-center">

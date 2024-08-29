@@ -15,6 +15,7 @@
         overrideItemIdKeyNameBeforeInitialisingDndZones,
     } from "svelte-dnd-action"
     import Task from "./Task.svelte"
+    import NewTask from "./NewTask.svelte"
     import ButtonBar from "./ButtonBar.svelte"
 
     export let stack
@@ -33,32 +34,22 @@
         dispatch("invalidate", stack.ID)
     }
 
-    function addTask() {
-        modal.trigger({
-            type: "prompt",
-            title: "Add task",
-            valueAttr: { type: "text", required: true },
-            response: (text) => {
-                if (!text) {
-                    return
-                }
-                const order =
-                    tasks.length > 0 ? tasks[tasks.length - 1].order + 1 : 0
-                AddTask(stack.ID, text, order)
-                    .then((taskID) => {
-                        tasks = [
-                            ...tasks,
-                            {
-                                ID: taskID,
-                                stack_id: stack.ID,
-                                order,
-                                text,
-                            },
-                        ]
-                    })
-                    .catch((error) => dispatch("error", error))
-            },
-        })
+    function addTask({ detail: text }) {
+        const order =
+            tasks.length > 0 ? tasks[tasks.length - 1].order + 1 : 0
+        AddTask(stack.ID, text, order)
+            .then((taskID) => {
+                tasks = [
+                    ...tasks,
+                    {
+                        ID: taskID,
+                        stack_id: stack.ID,
+                        order,
+                        text,
+                    },
+                ]
+            })
+            .catch((error) => dispatch("error", error))
     }
 
     function taskEdit({ detail: task }) {
@@ -173,6 +164,11 @@
                     {task}
                 />
             {/each}
+        </ul>
+        <ul>
+            <NewTask
+                on:add={addTask}
+            />
         </ul>
     {/if}
     {#if tasksDone.length}
