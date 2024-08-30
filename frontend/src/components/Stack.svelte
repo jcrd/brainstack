@@ -9,17 +9,18 @@
         EditStack,
         DeleteStack,
     } from "../../wailsjs/go/main/App"
+
     import { createEventDispatcher } from "svelte"
+
     import {
         dndzone,
         overrideItemIdKeyNameBeforeInitialisingDndZones,
     } from "svelte-dnd-action"
+
     import Task from "./Task.svelte"
     import NewTask from "./NewTask.svelte"
-    import ButtonBar from "./ButtonBar.svelte"
 
     export let stack
-    export let modal
 
     overrideItemIdKeyNameBeforeInitialisingDndZones("ID")
 
@@ -86,12 +87,6 @@
             .catch((error) => dispatch("error", error))
     }
 
-    function nextTask() {
-        if (tasksTodo.length > 0) {
-            taskDone({ detail: { taskID: tasksTodo[0].ID, done: true } })
-        }
-    }
-
     function taskPromoted({ detail: task }) {
         const items = [task, ...tasksTodo.filter((t) => t.ID != task.ID)]
         reorderTasks(items)
@@ -104,48 +99,9 @@
     function handleDndFinalize(e) {
         reorderTasks(e.detail.items)
     }
-
-    function editStack() {
-        modal.trigger({
-            type: "prompt",
-            title: "Edit stack",
-            value: stack.name,
-            valueAttr: { type: "text", required: true },
-            response: (text) => {
-                if (!text) {
-                    return
-                }
-                EditStack(stack.ID, text)
-                    .then(() => {
-                        dispatch("edit", {
-                            stackID: stack.ID,
-                            name: text,
-                        })
-                    })
-                    .catch((error) => dispatch("error", error))
-            },
-        })
-    }
-
-    function deleteStack() {
-        modal.trigger({
-            type: "confirm",
-            title: "Are you sure you want to delete this stack?",
-            response: (state) => {
-                if (state) {
-                    DeleteStack(stack.ID)
-                        .then(() => {
-                            dispatch("delete", stack.ID)
-                        })
-                        .catch((error) => dispatch("error", error))
-                }
-            },
-        })
-    }
 </script>
 
 <div class="flex flex-col gap-4 mx-8 max-h-screen overflow-auto pb-20 p-1">
-    <ButtonBar data={{ addTask, nextTask, editStack, deleteStack }} />
     {#if tasksTodo.length}
         <h1 class="badge variant-filled w-min">Todo</h1>
         <ul
