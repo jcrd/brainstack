@@ -35,7 +35,11 @@
             bind:checked={task.done}
             on:click={() => dispatch("done", { taskID: task.ID, done: !task.done })}
         />
-        <div class="flex-1" contenteditable="true" bind:textContent={taskText}>{task.text}</div>
+        {#if !task.done}
+            <div class="flex-1" contenteditable bind:textContent={taskText}>{task.text}</div>
+        {:else}
+            <div class="flex-1">{task.text}</div>
+        {/if}
     </div>
     <div class="flex items-center w-4 h-4">
         <button on:click={deleteTask} class="btn-icon bg-initial hidden group-hover:block">
