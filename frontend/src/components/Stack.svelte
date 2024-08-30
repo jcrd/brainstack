@@ -11,11 +11,15 @@
     } from "../../wailsjs/go/main/App"
 
     import { createEventDispatcher } from "svelte"
+    import { writable } from "svelte/store"
 
     import {
         dndzone,
         overrideItemIdKeyNameBeforeInitialisingDndZones,
     } from "svelte-dnd-action"
+
+    import TabTodoIcon from '~icons/material-symbols/circle-outline'
+    import TabDoneIcon from '~icons/material-symbols/check-circle'
 
     import Task from "./Task.svelte"
     import NewTask from "./NewTask.svelte"
@@ -25,6 +29,12 @@
     overrideItemIdKeyNameBeforeInitialisingDndZones("ID")
 
     const dispatch = createEventDispatcher()
+    const tabSet = writable(0)
+
+    $: {
+        stack
+        $tabSet = 0
+    }
 
     $: tasks = stack.tasks?.sort((a, b) => a.order - b.order) || []
     $: tasksDone = tasks.filter((t) => t.done)
@@ -102,8 +112,16 @@
 </script>
 
 <div class="flex flex-col gap-4 mx-8 max-h-screen overflow-auto pb-20 p-1">
-    {#if tasksTodo.length}
-        <h1 class="badge variant-filled w-min">Todo</h1>
+    <button class="pl-7 py-1 flex items-center gap-2 hover:bg-surface-200 hover:text-surface-600" on:click={() => $tabSet = !$tabSet}>
+        {#if $tabSet == 0}
+            <span class="mt-[3px]"><TabTodoIcon /></span>
+            <span class="text-xl">Todo</span>
+        {:else if $tabSet == 1}
+            <span class="mt-[3px]"><TabDoneIcon /></span>
+            <span class="text-xl">Done</span>
+        {/if}
+    </button>
+    {#if $tabSet == 0 && tasksTodo.length}
         <ul
             use:dndzone={{ items: tasksTodo }}
             on:consider={handleDndConsider}
@@ -126,9 +144,7 @@
                 on:add={addTask}
             />
         </ul>
-    {/if}
-    {#if tasksDone.length}
-        <h1 class="badge variant-filled w-min">Done</h1>
+    {:else if $tabSet == 1 && tasksDone.length}
         <ul class="flex flex-col gap-4">
             {#each tasksDone as task (task.ID)}
                 <Task
