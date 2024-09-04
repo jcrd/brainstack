@@ -7,6 +7,9 @@
     let taskText = ""
 
     function addTask() {
+        if (!taskText) {
+            return
+        }
         dispatch("add", taskText)
         taskText = ""
     }
