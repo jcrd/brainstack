@@ -1,12 +1,12 @@
 <script>
-    import { tagSelections } from "../stores"
+    import { tagSelections } from "../stores.js"
 
     export let tag
 </script>
 
 <button
-    on:click={() => $tagSelections[tag.ID] = !$tagSelections[tag.ID]}
-    class="chip {$tagSelections[tag.ID] ? 'variant-filled' : 'variant-soft'}"
+    on:click={() => $tagSelections[tag.stack_id][tag.ID] = !$tagSelections[tag.stack_id][tag.ID]}
+    class="chip {$tagSelections[tag.stack_id][tag.ID] ? 'variant-filled' : 'variant-soft'}"
 >
     #{tag.name}
 </button>

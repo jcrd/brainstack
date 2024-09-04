@@ -5,6 +5,7 @@ import (
 	"flag"
 	"path/filepath"
 
+	cs "github.com/AndreiTelteu/wails-configstore"
 	"github.com/kirsle/configdir"
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -26,8 +27,14 @@ func main() {
 	// Create an instance of the app structure
 	app := NewApp(*dbPath)
 
+	configStore, err := cs.NewConfigStore("brainstack")
+	if err != nil {
+		println("Failed to initialize config store", err.Error())
+		return
+	}
+
 	// Create application with options
-	err := wails.Run(&options.App{
+	err = wails.Run(&options.App{
 		Title:  "brainstack",
 		Width:  1024,
 		Height: 768,
@@ -41,6 +48,7 @@ func main() {
 		},
 		Bind: []interface{}{
 			app,
+			configStore,
 		},
 	})
 

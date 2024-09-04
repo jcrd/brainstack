@@ -5,6 +5,7 @@ go 1.21
 toolchain go1.22.2
 
 require (
+	github.com/AndreiTelteu/wails-configstore v0.0.2
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
 	github.com/wailsapp/wails/v2 v2.8.1
 	gorm.io/driver/sqlite v1.5.5
@@ -12,6 +13,7 @@ require (
 )
 
 require (
+	github.com/adrg/xdg v0.4.0 // indirect
 	github.com/bep/debounce v1.2.1 // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect

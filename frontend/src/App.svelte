@@ -3,6 +3,8 @@
 
     import { GetStack, GetStacks, CreateStack } from "../wailsjs/go/main/App"
 
+    import * as ConfigStore from "../wailsjs/go/wailsconfigstore/ConfigStore"
+
     import { writable } from "svelte/store"
 
     import {
@@ -29,6 +31,8 @@
     import Stack from "./components/Stack.svelte"
     import StackMenu from "./components/StackMenu.svelte"
 
+    import { tagSelections } from "./stores.js"
+
     initializeStores()
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow })
 
@@ -47,6 +51,36 @@
     GetStacks()
         .then((result) => {
             $stacks = result.sort((a, b) => a.order - b.order)
+
+            ConfigStore.Get(`stack.tag_selections`, null)
+                .then((r) => {
+                    if (!r) {
+                        return
+                    }
+                    $tagSelections = JSON.parse(r)
+                })
+                .catch(catchError)
+                .finally(() => {
+                    $stacks.forEach((stack) => {
+                        if (!(stack.ID in $tagSelections)) {
+                            $tagSelections[stack.ID] = {}
+                        }
+                    })
+                })
+
+            ConfigStore.Get("stack.selected_id", null)
+                .then((r) => {
+                    if (!r) {
+                        return
+                    }
+                    const id = JSON.parse(r)
+                    $stacks.forEach((s, i) => {
+                        if (s.ID === id) {
+                            $tabSet = i
+                        }
+                    })
+                })
+                .catch(catchError)
         })
         .catch(catchError)
 
@@ -61,6 +95,16 @@
                 .catch(catchError)
         }
     }
+
+    let selectedStack
+
+    $: {
+        selectedStack = $stacks[$tabSet]
+        if (selectedStack) {
+            ConfigStore.Set("stack.selected_id", JSON.stringify(selectedStack.ID))
+        }
+    }
+
 
     function addStack() {
         modal.trigger({
@@ -128,7 +172,7 @@
         <StackMenu
             on:edit={stackEdited}
             on:delete={stackDeleted}
-            stack={$stacks[$tabSet]}
+            stack={selectedStack}
             {modal}
         />
         {#if $stacks.length}
@@ -146,7 +190,7 @@
                 <Stack
                     on:invalidate={stackInvalidated}
                     on:error={({ detail: error }) => catchError(error)}
-                    stack={$stacks[$tabSet]}
+                    stack={selectedStack}
                 />
             {/if}
         </svelte:fragment>

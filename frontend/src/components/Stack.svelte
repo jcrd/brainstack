@@ -11,6 +11,8 @@
         GetTags,
     } from "../../wailsjs/go/main/App"
 
+    import * as ConfigStore from "../../wailsjs/go/wailsconfigstore/ConfigStore"
+
     import { createEventDispatcher } from "svelte"
     import { writable } from "svelte/store"
 
@@ -46,11 +48,12 @@
     let filteredTags = []
     let filteredTasks = []
 
-    $: {
+    $: if (tags.length && $tagSelections[stack.ID]) {
         const tagIds = tags.map((t) => t.ID.toString())
-        $tagSelections = Object.fromEntries(
-            Object.entries($tagSelections).filter(([id]) => tagIds.includes(id))
-        )
+        $tagSelections[stack.ID] = Object.fromEntries(
+            Object.entries($tagSelections[stack.ID]).filter(([id]) => {
+                return tagIds.includes(id)
+        }))
     }
 
     $: {
@@ -63,7 +66,7 @@
     $: tasks = stack.tasks?.sort((a, b) => a.order - b.order) || []
     $: {
         $tabSet
-        $tagSelections
+        $tagSelections[stack.ID]
         filteredTasks = tasks.filter(filterTags)
     }
     $: tasksDone = filteredTasks.filter((t) => t.done)
@@ -72,6 +75,12 @@
     $: {
         tasks
         dispatch("invalidate", stack.ID)
+    }
+
+    $: if ($tagSelections[stack.ID]) {
+        if (Object.keys($tagSelections[stack.ID]).length) {
+            ConfigStore.Set(`stack.tag_selections`, JSON.stringify($tagSelections))
+        }
     }
 
     function tagsForTasks(tasks) {
@@ -85,7 +94,7 @@
     function filterTags(task) {
         let hasSelection = false
         const tagIds = filteredTags.map((t) => t.ID.toString())
-        for (const [id, state] of Object.entries($tagSelections)) {
+        for (const [id, state] of Object.entries($tagSelections[stack.ID])) {
             if (tagIds.includes(id) && state) {
                 hasSelection = true
                 break
@@ -96,7 +105,7 @@
         }
         let selected = 0
         for (const tag of task.tags) {
-            selected += $tagSelections[tag.ID] ? 1 : 0
+            selected += $tagSelections[stack.ID][tag.ID] ? 1 : 0
         }
         return selected > 0
     }
