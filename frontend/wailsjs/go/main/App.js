@@ -34,6 +34,10 @@ export function GetStacks() {
   return window['go']['main']['App']['GetStacks']();
 }
 
+export function GetTags(arg1) {
+  return window['go']['main']['App']['GetTags'](arg1);
+}
+
 export function ReorderTasks(arg1) {
   return window['go']['main']['App']['ReorderTasks'](arg1);
 }

@@ -8,6 +8,7 @@
         UpdateTaskDone,
         EditStack,
         DeleteStack,
+        GetTags,
     } from "../../wailsjs/go/main/App"
 
     import { createEventDispatcher } from "svelte"
@@ -23,6 +24,10 @@
 
     import Task from "./Task.svelte"
     import NewTask from "./NewTask.svelte"
+    import TagList from "./TagList.svelte"
+
+    import { parseTaskText } from "../lib.js"
+    import { tagSelections } from "../stores.js"
 
     export let stack
 
@@ -36,36 +41,103 @@
         $tabSet = 0
     }
 
+    $: tags = stack.tags || []
+
+    let filteredTags = []
+    let filteredTasks = []
+
+    $: {
+        const tagIds = tags.map((t) => t.ID.toString())
+        $tagSelections = Object.fromEntries(
+            Object.entries($tagSelections).filter(([id]) => tagIds.includes(id))
+        )
+    }
+
+    $: {
+        const stackTags = new Set(tags.map((t) => t.ID))
+        const taskTags = tagsForTasks(tasks.filter((t) => $tabSet == 0 ? !t.done : t.done) || [])
+        const intersection = stackTags.intersection(taskTags)
+        filteredTags = tags.filter((t) => intersection.has(t.ID)) || []
+    }
+
     $: tasks = stack.tasks?.sort((a, b) => a.order - b.order) || []
-    $: tasksDone = tasks.filter((t) => t.done)
-    $: tasksTodo = tasks.filter((t) => !t.done)
+    $: {
+        $tabSet
+        $tagSelections
+        filteredTasks = tasks.filter(filterTags)
+    }
+    $: tasksDone = filteredTasks.filter((t) => t.done)
+    $: tasksTodo = filteredTasks.filter((t) => !t.done)
 
     $: {
         tasks
         dispatch("invalidate", stack.ID)
     }
 
+    function tagsForTasks(tasks) {
+        let set = new Set()
+        for (let task of tasks) {
+            set = set.union(new Set(task.tags?.map((t) => t.ID)))
+        }
+        return set
+    }
+
+    function filterTags(task) {
+        let hasSelection = false
+        const tagIds = filteredTags.map((t) => t.ID.toString())
+        for (const [id, state] of Object.entries($tagSelections)) {
+            if (tagIds.includes(id) && state) {
+                hasSelection = true
+                break
+            }
+        }
+        if (!hasSelection) {
+            return true
+        }
+        let selected = 0
+        for (const tag of task.tags) {
+            selected += $tagSelections[tag.ID] ? 1 : 0
+        }
+        return selected > 0
+    }
+
+    function updateTags() {
+        GetTags(stack.ID)
+            .then((ts) => tags = ts)
+            .catch((error) => dispatch("error", error))
+    }
+
     function addTask({ detail: text }) {
         const order =
             tasks.length > 0 ? tasks[tasks.length - 1].order + 1 : 0
-        AddTask(stack.ID, text, order)
-            .then((taskID) => {
+        const parsed = parseTaskText(text)
+
+        AddTask(stack.ID, parsed, order)
+            .then((task) => {
                 tasks = [
                     ...tasks,
                     {
-                        ID: taskID,
-                        stack_id: stack.ID,
+                        ...task,
                         order,
-                        text,
                     },
                 ]
             })
             .catch((error) => dispatch("error", error))
+            .finally(updateTags)
     }
 
-    function taskEdit({ detail: task }) {
-        EditTask(task.ID, task.text)
+    function taskEdit({ detail: { task, parsed } }) {
+        EditTask(task.ID, parsed)
+            .then((editedTask) => {
+                tasks = tasks.map((t) => {
+                    if (t.ID === editedTask.ID) {
+                        return editedTask
+                    }
+                    return t
+                })
+            })
             .catch((error) => dispatch("error", error))
+            .finally(updateTags)
     }
 
     function reorderTasks(items) {
@@ -82,12 +154,13 @@
 
     function taskDeleted({ detail: taskID }) {
         tasks = tasks.filter((t) => t.ID != taskID)
+        updateTags()
     }
 
     function taskDone({ detail: { taskID, done } }) {
         UpdateTaskDone(taskID, done)
             .then(() => {
-                tasks = tasks.map((t) => {
+                stack.tasks = tasks.map((t) => {
                     if (t.ID === taskID) {
                         t.done = done
                     }
@@ -121,24 +194,29 @@
             <span class="text-xl">Done</span>
         {/if}
     </button>
-    {#if $tabSet == 0 && tasksTodo.length}
-        <ul
-            use:dndzone={{ items: tasksTodo }}
-            on:consider={handleDndConsider}
-            on:finalize={handleDndFinalize}
-            class="flex flex-col gap-4"
-        >
-            {#each tasksTodo as task (task.ID)}
-                <Task
-                    on:promote={taskPromoted}
-                    on:delete={taskDeleted}
-                    on:edit={taskEdit}
-                    on:done={taskDone}
-                    on:error={(error) => dispatch("error", error)}
-                    {task}
-                />
-            {/each}
-        </ul>
+    <div class="pl-3">
+        <TagList tags={filteredTags} />
+    </div>
+    {#if $tabSet == 0}
+        {#if tasksTodo.length}
+            <ul
+                use:dndzone={{ items: tasksTodo }}
+                on:consider={handleDndConsider}
+                on:finalize={handleDndFinalize}
+                class="flex flex-col gap-4"
+            >
+                {#each tasksTodo as task (task.ID)}
+                    <Task
+                        on:promote={taskPromoted}
+                        on:delete={taskDeleted}
+                        on:edit={taskEdit}
+                        on:done={taskDone}
+                        on:error={(error) => dispatch("error", error)}
+                        {task}
+                    />
+                {/each}
+            </ul>
+        {/if}
         <ul>
             <NewTask
                 on:add={addTask}

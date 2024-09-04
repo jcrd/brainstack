@@ -15,14 +15,30 @@ type Stack struct {
 	Name string `json:"name"`
 	Order uint `json:"order"`
 	Tasks []Task `json:"tasks"`
+	Tags []Tag `json:"tags"`
+}
+
+type Tag struct {
+	gorm.Model
+	StackID uint `json:"stack_id"`
+	Name string `json:"name"`
+	Tasks []*Task `json:"tasks" gorm:"many2many:task_tags;"`
 }
 
 type Task struct {
 	gorm.Model
 	StackID uint `json:"stack_id"`
 	Text string `json:"text"`
+	ParsedText string `json:"parsed_text"`
+	Tags []*Tag `json:"tags" gorm:"many2many:task_tags;"`
 	Done bool `json:"done"`
 	Order uint `json:"order"`
+}
+
+type TaskDelta struct {
+	Text string `json:"text"`
+	ParsedText string `json:"parsed_text"`
+	Tags []string `json:"tags"`
 }
 
 // App struct
@@ -38,7 +54,7 @@ func NewApp(dbPath string) *App {
 }
 
 func initDB(db *gorm.DB) {
-	db.AutoMigrate(&Stack{}, &Task{})
+	db.AutoMigrate(&Stack{}, &Task{}, &Tag{})
 
 	var stacks []Stack
 	result := db.Find(&stacks)
@@ -55,6 +71,28 @@ func (s *Stack) BeforeDelete(db *gorm.DB) error {
 	if result.Error != nil {
 		log.Println("Failed to delete tasks:", result.Error)
 		return result.Error
+	}
+	result = db.Clauses(clause.Returning{}).Where("stack_id = ?", s.ID).Delete(&Tag{})
+	if result.Error != nil {
+		log.Println("Failed to delete tags:", result.Error)
+		return result.Error
+	}
+	return nil
+}
+
+func (a *App) cleanupTags(stackID uint) error {
+	tags, err := a.GetTags(stackID)
+	if err != nil {
+		return err
+	}
+	for _, tag := range tags {
+		if len(tag.Tasks) == 0 {
+			result := a.db.Delete(&tag)
+			if result.Error != nil {
+				log.Println("Failed to delete tag:", result.Error)
+				return result.Error
+			}
+		}
 	}
 	return nil
 }
@@ -111,7 +149,7 @@ func (a *App) GetStacks() ([]Stack, error) {
 
 func (a *App) GetStack(id uint) (Stack, error) {
 	var stack Stack
-	result := a.db.Preload("Tasks").First(&stack, id)
+	result := a.db.Preload("Tasks.Tags").Preload("Tags").First(&stack, id)
 	if result.Error != nil {
 		log.Println("Failed to get stack:", result.Error)
 		return stack, result.Error
@@ -119,14 +157,43 @@ func (a *App) GetStack(id uint) (Stack, error) {
 	return stack, nil
 }
 
-func (a *App) AddTask(stackID uint, text string, order uint) (uint, error) {
-	task := Task{StackID: stackID, Text: text, Order: order}
+func (a *App) GetTags(stackID uint) (tags []*Tag, err error) {
+	result := a.db.Where("stack_id = ?", stackID).Preload("Tasks").Find(&tags)
+	if result.Error != nil {
+		log.Println("Failed to get tags:", result.Error)
+		return tags, result.Error
+	}
+	return tags, nil
+}
+
+func (a *App) makeTags(stackID uint, tagNames []string) ([]*Tag, error) {
+	var tags []*Tag
+	var existing *Tag
+
+	for _, name := range tagNames {
+		tag := &Tag{StackID: stackID, Name: name}
+		result := a.db.Model(&Tag{}).Where("name = ?", name).Limit(1).Find(&existing)
+		if existing != nil && result.Error == nil {
+			tag.ID = existing.ID
+		}
+		tags = append(tags, tag)
+	}
+	return tags, nil
+}
+
+func (a *App) AddTask(stackID uint, delta TaskDelta, order uint) (Task, error) {
+	var task Task
+	tags, err := a.makeTags(stackID, delta.Tags)
+	if err != nil {
+		return task, err
+	}
+	task = Task{StackID: stackID, Text: delta.Text, ParsedText: delta.ParsedText, Tags: tags, Order: order}
 	result := a.db.Create(&task)
 	if result.Error != nil {
 		log.Println("Failed to create task:", result.Error)
-		return 0, result.Error
+		return task, result.Error
 	}
-	return task.ID, nil
+	return task, nil
 }
 
 func (a *App) ReorderTasks(tasks []Task) ([]Task, error) {
@@ -149,20 +216,53 @@ func (a *App) UpdateTaskDone(taskID uint, state bool) (uint, error) {
 	return taskID, nil
 }
 
-func (a *App) EditTask(taskID uint, text string) (uint, error) {
-	result := a.db.Model(&Task{}).Where("ID = ?", taskID).Update("text", text)
+func (a *App) EditTask(taskID uint, delta TaskDelta) (Task, error) {
+	var task Task
+	result := a.db.Model(&Task{}).Where("ID = ?", taskID).First(&task)
 	if result.Error != nil {
-		log.Println("Failed to update task:", result.Error)
-		return 0, result.Error
+		log.Println("Failed to get task:", result.Error)
+		return task, result.Error
 	}
-	return taskID, nil
+
+	tags, err := a.makeTags(task.StackID, delta.Tags)
+	if err != nil {
+		return task, err
+	}
+	task.Text = delta.Text
+	task.ParsedText = delta.ParsedText
+
+	result = a.db.Model(&task).Updates(&task)
+	if result.Error != nil {
+		log.Println("Failed to save task:", result.Error)
+		return task, result.Error
+	}
+
+	err = a.db.Model(&task).Association("Tags").Replace(tags)
+	if err != nil {
+		return task, err
+	}
+	err = a.cleanupTags(task.StackID)
+	if err != nil {
+		return task, err
+	}
+	return task, nil
 }
 
 func (a *App) DeleteTask(taskID uint) (uint, error) {
-	result := a.db.Delete(&Task{}, taskID)
+	var task Task
+	result := a.db.Model(&Task{}).Where("ID = ?", taskID).First(&task)
+	if result.Error != nil {
+		log.Println("Failed to get task to delete:", result.Error)
+		return 0, result.Error
+	}
+	result = a.db.Delete(&task)
 	if result.Error != nil {
 		log.Println("Failed to delete task:", result.Error)
 		return 0, result.Error
+	}
+	err := a.cleanupTags(task.StackID)
+	if err != nil {
+		return 0, err
 	}
 	return taskID, nil
 }
