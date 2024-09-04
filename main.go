@@ -35,6 +35,10 @@ func main() {
 			Assets: assets,
 		},
 		OnStartup: app.startup,
+		SingleInstanceLock: &options.SingleInstanceLock{
+			UniqueId: "8839ea48-dd0e-475b-81a0-cb3b652defd5",
+			OnSecondInstanceLaunch: app.onSecondInstanceLaunch,
+		},
 		Bind: []interface{}{
 			app,
 		},

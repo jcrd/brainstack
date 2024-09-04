@@ -5,6 +5,8 @@ import (
 
 	"log"
 
+	"github.com/wailsapp/wails/v2/pkg/options"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -51,6 +53,12 @@ type App struct {
 // NewApp creates a new App application struct
 func NewApp(dbPath string) *App {
 	return &App{dbPath: dbPath}
+}
+
+func (a *App) onSecondInstanceLaunch(secondInstanceData options.SecondInstanceData) {
+    runtime.WindowUnminimise(a.ctx)
+    runtime.Show(a.ctx)
+    go runtime.EventsEmit(a.ctx, "launchArgs", secondInstanceData.Args)
 }
 
 func initDB(db *gorm.DB) {
