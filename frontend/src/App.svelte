@@ -125,16 +125,17 @@
                 }
                 const order = $stacks[$stacks.length - 1].order + 1
                 CreateStack(text)
-                    .then((result) => {
+                    .then((id) => {
                         $stacks = [
                             ...$stacks,
                             {
-                                ID: result,
+                                ID: id,
                                 name: text,
                                 order,
                             },
                         ]
                         $tabSet = $stacks.length - 1
+                        $tagSelections[id] = {}
                     })
                     .catch(catchError)
             },
