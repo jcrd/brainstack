@@ -23,7 +23,7 @@
     }
 </script>
 
-<li class="group flex items-center justify-between gap-2">
+<li class="group flex items-center justify-between gap-2 mb-1">
     <button class="w-5 h-5" on:click={addTask}>
         <AddIcon style="color:gray" />
     </button>
