@@ -209,7 +209,7 @@
     <div class="pl-3">
         <TagList tags={filteredTags} />
     </div>
-    <div class="flex flex-col gap-4 overflow-y-auto overflow-x-hidden">
+    <div class="flex flex-col gap-3 overflow-y-auto overflow-x-hidden">
         {#if $tabSet == 0}
             {#if tasksTodo.length}
                 <ul
