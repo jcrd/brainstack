@@ -18,6 +18,7 @@
     }
 
     let editable
+    let deleted = false
 
     const dispatch = createEventDispatcher()
 
@@ -34,9 +35,16 @@
     }
 
     function saveEdits() {
+        if (deleted) {
+            return false
+        }
+        if (!taskText) {
+            deleteTask()
+            return false
+        }
         editing = false
         if (taskText === task.text) {
-            return
+            return true
         }
         task.text = taskText
         const parsed = parseTaskText(task.text)
@@ -46,20 +54,23 @@
             ...parsed,
         }
         task.tags = parsed.tags.map((t) => { return {name: t} })
+        return true
     }
 
     function deleteTask() {
         DeleteTask(task.ID)
             .then(() => {
                 dispatch("delete", task.ID)
+                deleted = true
             })
             .catch((error) => dispatch("error", error))
     }
 
     function handleKey(e) {
         if (e.key === "Enter") {
-            saveEdits()
-            editable?.blur()
+            if (saveEdits()) {
+                editable?.blur()
+            }
         }
     }
 </script>
