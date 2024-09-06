@@ -193,7 +193,7 @@
     }
 </script>
 
-<div class="flex flex-col gap-4 mx-8 max-h-screen overflow-auto pb-20 p-1">
+<div class="flex flex-col gap-4 mx-8 max-h-screen pb-20 p-1">
     <button class="pl-7 py-1 flex items-center gap-2 hover:bg-surface-200 hover:text-surface-600" on:click={() => $tabSet = !$tabSet}>
         {#if $tabSet == 0}
             <span class="mt-[3px]"><TabTodoIcon /></span>
@@ -206,19 +206,37 @@
     <div class="pl-3">
         <TagList tags={filteredTags} />
     </div>
-    {#if $tabSet == 0}
-        {#if tasksTodo.length}
-            <ul
-                use:dndzone={{ items: tasksTodo }}
-                on:consider={handleDndConsider}
-                on:finalize={handleDndFinalize}
-                class="flex flex-col gap-4"
-            >
-                {#each tasksTodo as task (task.ID)}
+    <div class="flex flex-col gap-4 overflow-y-auto overflow-x-hidden">
+        {#if $tabSet == 0}
+            {#if tasksTodo.length}
+                <ul
+                    use:dndzone={{ items: tasksTodo }}
+                    on:consider={handleDndConsider}
+                    on:finalize={handleDndFinalize}
+                    class="flex flex-col gap-4"
+                >
+                    {#each tasksTodo as task (task.ID)}
+                        <Task
+                            on:promote={taskPromoted}
+                            on:delete={taskDeleted}
+                            on:edit={taskEdit}
+                            on:done={taskDone}
+                            on:error={(error) => dispatch("error", error)}
+                            {task}
+                        />
+                    {/each}
+                </ul>
+            {/if}
+            <ul>
+                <NewTask
+                    on:add={addTask}
+                />
+            </ul>
+        {:else if $tabSet == 1 && tasksDone.length}
+            <ul class="flex flex-col gap-4">
+                {#each tasksDone as task (task.ID)}
                     <Task
-                        on:promote={taskPromoted}
                         on:delete={taskDeleted}
-                        on:edit={taskEdit}
                         on:done={taskDone}
                         on:error={(error) => dispatch("error", error)}
                         {task}
@@ -226,21 +244,5 @@
                 {/each}
             </ul>
         {/if}
-        <ul>
-            <NewTask
-                on:add={addTask}
-            />
-        </ul>
-    {:else if $tabSet == 1 && tasksDone.length}
-        <ul class="flex flex-col gap-4">
-            {#each tasksDone as task (task.ID)}
-                <Task
-                    on:delete={taskDeleted}
-                    on:done={taskDone}
-                    on:error={(error) => dispatch("error", error)}
-                    {task}
-                />
-            {/each}
-        </ul>
-    {/if}
+    </div>
 </div>
