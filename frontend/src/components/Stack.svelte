@@ -21,12 +21,10 @@
         overrideItemIdKeyNameBeforeInitialisingDndZones,
     } from "svelte-dnd-action"
 
-    import TabTodoIcon from '~icons/material-symbols/circle-outline'
-    import TabDoneIcon from '~icons/material-symbols/check-circle'
-
     import Task from "./Task.svelte"
     import NewTask from "./NewTask.svelte"
     import TagList from "./TagList.svelte"
+    import Checkbox from "./Checkbox.svelte"
 
     import { parseTaskText } from "../lib.js"
     import { tagSelections, todoCounts, stackTabs } from "../stores.js"
@@ -201,10 +199,10 @@
 <div class="flex flex-col gap-4 mx-8 max-h-screen pb-20 p-1">
     <button class="pl-7 py-1 flex items-center gap-2 hover:bg-surface-200 hover:text-surface-600" on:click={() => $tabSet = !$tabSet}>
         {#if $tabSet == 0}
-            <span class="mt-[3px]"><TabTodoIcon /></span>
+            <Checkbox checked={false} hover={false} />
             <span class="text-xl">Todo</span>
         {:else if $tabSet == 1}
-            <span class="mt-[3px]"><TabDoneIcon /></span>
+            <Checkbox checked={true} hover={false} />
             <span class="text-xl">Done</span>
         {/if}
     </button>

@@ -2,6 +2,8 @@
     import { createEventDispatcher } from "svelte"
     import AddIcon from "~icons/material-symbols/add"
 
+    import Checkbox from "./Checkbox.svelte"
+
     const dispatch = createEventDispatcher()
 
     let taskText = ""
@@ -26,11 +28,7 @@
         <AddIcon style="color:gray" />
     </button>
     <div class="flex-1 flex gap-2 items-center">
-        <input
-            class="checkbox"
-            type="checkbox"
-            disabled
-        />
+        <Checkbox hover={false} disabled />
         <input class="flex-1 bg-transparent" type="text" bind:value={taskText} on:keydown={handleKey} />
     </div>
     <div class="w-4 h-4"></div>

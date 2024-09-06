@@ -5,6 +5,7 @@
     import DragIcon from '~icons/material-symbols/drag-indicator'
 
     import Tag from "./Tag.svelte"
+    import Checkbox from "./Checkbox.svelte"
 
     import { parseTaskText } from "../lib.js"
 
@@ -80,12 +81,16 @@
         <DragIcon style="color:gray" />
     </div>
     <div class="flex-1 flex gap-2 items-center">
-        <input
-            class="checkbox"
-            type="checkbox"
+        <Checkbox
             bind:checked={task.done}
             on:click={() => dispatch("done", { taskID: task.ID, done: !task.done })}
         />
+        <!-- <input
+            class="appearance-none w-4 h-4 rounded-xl border border-surface-600 bg-transparent"
+            type="checkbox"
+            bind:checked={task.done}
+            on:click={() => dispatch("done", { taskID: task.ID, done: !task.done })}
+        /> -->
         {#if !task.done && editing}
             <div
                 class="flex-1"
