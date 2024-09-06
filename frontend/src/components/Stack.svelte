@@ -29,19 +29,18 @@
     import TagList from "./TagList.svelte"
 
     import { parseTaskText } from "../lib.js"
-    import { tagSelections, todoCounts } from "../stores.js"
+    import { tagSelections, todoCounts, stackTabs } from "../stores.js"
 
     export let stack
+    export let tabId
 
     overrideItemIdKeyNameBeforeInitialisingDndZones("ID")
 
     const dispatch = createEventDispatcher()
     const tabSet = writable(0)
 
-    $: {
-        stack
-        $tabSet = 0
-    }
+    $: $tabSet = tabId || 0
+    $: $stackTabs[stack.ID] = $tabSet
 
     $: tags = stack.tags || []
 

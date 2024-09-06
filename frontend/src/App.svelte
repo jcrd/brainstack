@@ -31,7 +31,7 @@
     import Stack from "./components/Stack.svelte"
     import StackMenu from "./components/StackMenu.svelte"
 
-    import { tagSelections, todoCounts } from "./stores.js"
+    import { tagSelections, todoCounts, stackTabs } from "./stores.js"
 
     initializeStores()
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow })
@@ -202,6 +202,7 @@
                     on:invalidate={stackInvalidated}
                     on:error={({ detail: error }) => catchError(error)}
                     stack={selectedStack}
+                    tabId={$stackTabs[selectedStack.ID]}
                 />
             {/if}
         </svelte:fragment>
