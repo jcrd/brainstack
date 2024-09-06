@@ -85,15 +85,9 @@
             bind:checked={task.done}
             on:click={() => dispatch("done", { taskID: task.ID, done: !task.done })}
         />
-        <!-- <input
-            class="appearance-none w-4 h-4 rounded-xl border border-surface-600 bg-transparent"
-            type="checkbox"
-            bind:checked={task.done}
-            on:click={() => dispatch("done", { taskID: task.ID, done: !task.done })}
-        /> -->
         {#if !task.done && editing}
             <div
-                class="flex-1"
+                class="flex-1 my-1"
                 contenteditable
                 bind:this={editable}
                 bind:textContent={taskText}
@@ -103,7 +97,7 @@
             >
             </div>
         {:else}
-            <div class="flex gap-2">
+            <div class="flex gap-2 my-1">
                 <button on:click={() => editing = true} class="flex-1">{task.parsed_text || task.text}</button>
                 {#if task.tags}
                     <div class="flex gap-1">

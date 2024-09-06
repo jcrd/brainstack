@@ -216,7 +216,7 @@
                     use:dndzone={{ items: tasksTodo }}
                     on:consider={handleDndConsider}
                     on:finalize={handleDndFinalize}
-                    class="flex flex-col gap-4"
+                    class="flex flex-col gap-3"
                 >
                     {#each tasksTodo as task (task.ID)}
                         <Task
@@ -236,7 +236,7 @@
                 />
             </ul>
         {:else if $tabSet == 1 && tasksDone.length}
-            <ul class="flex flex-col gap-4">
+            <ul class="flex flex-col gap-3">
                 {#each tasksDone as task (task.ID)}
                     <Task
                         on:delete={taskDeleted}
