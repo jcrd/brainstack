@@ -31,7 +31,7 @@
     import Stack from "./components/Stack.svelte"
     import StackMenu from "./components/StackMenu.svelte"
 
-    import { tagSelections } from "./stores.js"
+    import { tagSelections, todoCounts } from "./stores.js"
 
     initializeStores()
     storePopup.set({ computePosition, autoUpdate, offset, shift, flip, arrow })
@@ -81,6 +81,15 @@
                     })
                 })
                 .catch(catchError)
+
+            ConfigStore.Get("stack.todo_counts", null)
+                .then((r) => {
+                    if (!r) {
+                        return
+                    }
+                    $todoCounts = JSON.parse(r)
+                })
+                .catch(catchError)
         })
         .catch(catchError)
 
@@ -104,7 +113,6 @@
             ConfigStore.Set("stack.selected_id", JSON.stringify(selectedStack.ID))
         }
     }
-
 
     function addStack() {
         modal.trigger({
@@ -177,8 +185,11 @@
         />
         {#if $stacks.length}
             {#each $stacks as stack, i}
-                <Tab id={`tab-stack-${i}`} bind:group={$tabSet} name={stack.name} value={i}>
-                    <span>{stack.name}</span>
+                <Tab bind:group={$tabSet} name={stack.name} value={i}>
+                    <div class="flex gap-1">
+                        <span class="badge rounded-xl variant-soft mt-[1px]">{$todoCounts[stack.ID] || 0}</span>
+                        <span>{stack.name}</span>
+                    </div>
                 </Tab>
             {/each}
         {/if}

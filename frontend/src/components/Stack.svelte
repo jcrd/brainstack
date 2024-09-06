@@ -29,7 +29,7 @@
     import TagList from "./TagList.svelte"
 
     import { parseTaskText } from "../lib.js"
-    import { tagSelections } from "../stores.js"
+    import { tagSelections, todoCounts } from "../stores.js"
 
     export let stack
 
@@ -69,8 +69,14 @@
         $tagSelections[stack.ID]
         filteredTasks = tasks.filter(filterTags)
     }
+
     $: tasksDone = filteredTasks.filter((t) => t.done)
     $: tasksTodo = filteredTasks.filter((t) => !t.done)
+
+    $: {
+        $todoCounts[stack.ID] = tasksTodo.length
+        ConfigStore.Set("stack.todo_counts", JSON.stringify($todoCounts))
+    }
 
     $: {
         tasks
@@ -79,7 +85,7 @@
 
     $: if ($tagSelections[stack.ID]) {
         if (Object.keys($tagSelections[stack.ID]).length) {
-            ConfigStore.Set(`stack.tag_selections`, JSON.stringify($tagSelections))
+            ConfigStore.Set("stack.tag_selections", JSON.stringify($tagSelections))
         }
     }
 
