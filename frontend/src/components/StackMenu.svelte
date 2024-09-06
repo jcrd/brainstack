@@ -65,7 +65,7 @@
 </script>
 
 <div data-popup="stackPopup">
-    <div class="btn-group-vertical variant-filled">
+    <div class="btn-group-vertical variant-filled relative z-10">
         <button on:click={editStack}>
             <div class="-ml-4">
                 <EditIcon />
