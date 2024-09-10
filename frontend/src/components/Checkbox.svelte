@@ -17,7 +17,7 @@
             border-[1.5px]
             appearance-none peer w-4 h-4 rounded-xl"
     />
-    <div class="absolute -ml-[1.5px] -mt-[1.5px] w-4 h-4 hidden peer-checked:block">
+    <div class="absolute -ml-[0.1em] -mt-[0.1em] w-4 h-4 hidden peer-checked:block">
         <DoneIcon />
     </div>
 </div>
