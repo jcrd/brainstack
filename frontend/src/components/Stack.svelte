@@ -196,8 +196,8 @@
     }
 </script>
 
-<div class="flex flex-col gap-4 mx-8 max-h-screen pb-20 p-1">
-    <button class="pl-7 py-1 flex items-center gap-2 hover:bg-surface-200 hover:text-surface-600" on:click={() => $tabSet = !$tabSet}>
+<div class="flex flex-col gap-4 mx-8 max-h-screen pb-20">
+    <button class="pl-8 py-1 flex items-center gap-2 hover:bg-surface-200 hover:text-surface-600" on:click={() => $tabSet = !$tabSet}>
         {#if $tabSet == 0}
             <Checkbox checked={false} hover={false} />
             <span class="text-xl">Todo</span>
@@ -206,10 +206,10 @@
             <span class="text-xl">Done</span>
         {/if}
     </button>
-    <div class="pl-3">
+    <div class="pl-4">
         <TagList tags={filteredTags} />
     </div>
-    <div class="flex flex-col gap-3 overflow-y-auto overflow-x-hidden">
+    <div class="flex flex-col gap-3 overflow-y-auto overflow-x-hidden p-1">
         {#if $tabSet == 0}
             {#if tasksTodo.length}
                 <ul
