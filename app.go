@@ -204,6 +204,17 @@ func (a *App) AddTask(stackID uint, delta TaskDelta, order uint) (Task, error) {
 	return task, nil
 }
 
+func (a *App) ReorderStacks(stacks []Stack) ([]Stack, error) {
+	for _, s := range stacks {
+		result := a.db.Model(&s).Update("order", s.Order)
+		if result.Error != nil {
+			log.Println("Failed to reorder stacks:", result.Error)
+			return stacks, result.Error
+		}
+	}
+	return stacks, nil
+}
+
 func (a *App) ReorderTasks(tasks []Task) ([]Task, error) {
 	for _, t := range tasks {
 		result := a.db.Model(&t).Update("order", t.Order)

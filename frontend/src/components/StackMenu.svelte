@@ -12,6 +12,7 @@
     import MenuIcon from "~icons/material-symbols/menu-rounded"
     import DeleteIcon from "~icons/material-symbols/delete-forever-outline-rounded"
     import EditIcon from "~icons/material-symbols/edit"
+    import PromoteIcon from '~icons/material-symbols/first-page'
 
     export let stack
     export let modal
@@ -62,18 +63,29 @@
         })
     }
 
+    function promoteStack() {
+        if (stack.order !== 0) {
+            dispatch("promote", stack.ID)
+        }
+    }
 </script>
 
 <div data-popup="stackPopup">
     <div class="btn-group-vertical variant-filled relative z-10">
+        <button on:click={promoteStack} disabled={stack?.order === 0}>
+            <PromoteIcon />
+            <span>Promote</span>
+        </button>
         <button on:click={editStack}>
-            <div class="-ml-4">
+            <div class="-ml-8">
                 <EditIcon />
             </div>
             <span>Edit</span>
         </button>
         <button on:click={deleteStack}>
-            <DeleteIcon />
+            <div class="-ml-4">
+                <DeleteIcon />
+            </div>
             <span>Delete</span>
         </button>
     </div>

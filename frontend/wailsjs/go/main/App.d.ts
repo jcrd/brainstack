@@ -20,6 +20,8 @@ export function GetStacks():Promise<Array<main.Stack>>;
 
 export function GetTags(arg1:number):Promise<Array<main.Tag>>;
 
+export function ReorderStacks(arg1:Array<main.Stack>):Promise<Array<main.Stack>>;
+
 export function ReorderTasks(arg1:Array<main.Task>):Promise<Array<main.Task>>;
 
 export function UpdateTaskDone(arg1:number,arg2:boolean):Promise<number>;

@@ -1,7 +1,7 @@
 <script>
     // @ts-nocheck
 
-    import { GetStack, GetStacks, CreateStack } from "../wailsjs/go/main/App"
+    import { GetStack, GetStacks, CreateStack, ReorderStacks } from "../wailsjs/go/main/App"
 
     import * as ConfigStore from "../wailsjs/go/wailsconfigstore/ConfigStore"
 
@@ -172,6 +172,24 @@
             }
         })
     }
+
+    function stackPromoted({ detail: stackID }) {
+        let order = 1
+        const orderedStacks = $stacks.map((s) => {
+            if (s.ID === stackID) {
+                s.order = 0
+            } else {
+                s.order = order++
+            }
+            return s
+        })
+        ReorderStacks(orderedStacks)
+            .then((result) => {
+                $stacks = result.sort((a, b) => a.order - b.order)
+                $tabSet = 0
+            })
+            .catch(catchError)
+    }
 </script>
 
 <Toast />
@@ -181,6 +199,7 @@
         <StackMenu
             on:edit={stackEdited}
             on:delete={stackDeleted}
+            on:promote={stackPromoted}
             stack={selectedStack}
             {modal}
         />

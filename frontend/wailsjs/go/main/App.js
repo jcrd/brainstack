@@ -38,6 +38,10 @@ export function GetTags(arg1) {
   return window['go']['main']['App']['GetTags'](arg1);
 }
 
+export function ReorderStacks(arg1) {
+  return window['go']['main']['App']['ReorderStacks'](arg1);
+}
+
 export function ReorderTasks(arg1) {
   return window['go']['main']['App']['ReorderTasks'](arg1);
 }
