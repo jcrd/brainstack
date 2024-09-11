@@ -3,3 +3,6 @@ node_modules
 frontend/dist
 
 test.db
+
+appdir/AppRun
+appdir/.DirIcon

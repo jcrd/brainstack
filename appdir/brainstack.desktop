@@ -1,8 +1,6 @@
 [Desktop Entry]
 Type=Application
-Version=1.0
-Name=brainstack
+Name=Brainstack
 Comment=Intuitive task management
-Path=/opt/brainstack
-Exec=bin/brainstack
 Icon=brainstack
+Categories=Utility

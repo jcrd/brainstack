@@ -1,20 +1,28 @@
-PREFIX ?= /opt/brainstack
-BINPREFIX ?= $(PREFIX)/bin
-
-DESKTOPPREFIX ?= $(HOME)/.local/share/applications
+ARCH ?= x86_64
 
 BIN = build/bin/brainstack
-
-all: install
+APPIMAGETOOL = build/appimagetool-$(ARCH).AppImage
+APPIMAGE = Brainstack-$(ARCH).AppImage
 
 $(BIN):
 	wails build
 
-install: $(BIN)
-	sudo mkdir -p $(BINPREFIX)
-	sudo cp $(BIN) $(BINPREFIX)/brainstack
+appimage: build/$(APPIMAGE)
 
-	mkdir -p $(DESKTOPPREFIX)
-	cp brainstack.desktop $(DESKTOPPREFIX)/brainstack.desktop
+$(APPIMAGETOOL):
+	curl -L -o $(APPIMAGETOOL) https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-$(ARCH).AppImage
+	chmod +x $(APPIMAGETOOL)
 
-.PHONY: all install
+build/$(APPIMAGE): $(BIN) $(APPIMAGETOOL)
+	cp $(BIN) appdir/AppRun
+	./$(APPIMAGETOOL) appdir
+	chmod +x $(APPIMAGE)
+	mv $(APPIMAGE) build
+
+clean:
+	rm build/$(APPIMAGE)
+
+clean-bin: clean
+	rm $(BIN)
+
+.PHONY: clean clean-bin
