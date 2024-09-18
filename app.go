@@ -176,12 +176,15 @@ func (a *App) GetTags(stackID uint) (tags []*Tag, err error) {
 
 func (a *App) makeTags(stackID uint, tagNames []string) ([]*Tag, error) {
 	var tags []*Tag
-	var existing *Tag
 
 	for _, name := range tagNames {
+		var existing *Tag
 		tag := &Tag{StackID: stackID, Name: name}
 		result := a.db.Model(&Tag{}).Where("name = ?", name).Limit(1).Find(&existing)
-		if existing != nil && result.Error == nil {
+		if result.Error != nil {
+			return tags, result.Error
+		}
+		if existing != nil {
 			tag.ID = existing.ID
 		}
 		tags = append(tags, tag)
@@ -263,7 +266,7 @@ func (a *App) EditTask(taskID uint, delta TaskDelta) (Task, error) {
 		return task, result.Error
 	}
 
-	err = a.db.Model(&task).Association("Tags").Replace(tags)
+	err = a.db.Model(&task).Association("Tags").Replace(&tags)
 	if err != nil {
 		return task, err
 	}
