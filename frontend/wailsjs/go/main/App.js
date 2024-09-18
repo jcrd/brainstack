@@ -6,6 +6,10 @@ export function AddTask(arg1, arg2, arg3) {
   return window['go']['main']['App']['AddTask'](arg1, arg2, arg3);
 }
 
+export function ApplyOrder(arg1) {
+  return window['go']['main']['App']['ApplyOrder'](arg1);
+}
+
 export function CreateStack(arg1) {
   return window['go']['main']['App']['CreateStack'](arg1);
 }

@@ -1,7 +1,7 @@
 <script>
     // @ts-nocheck
 
-    import { GetStack, GetStacks, CreateStack, ReorderStacks } from "../wailsjs/go/main/App"
+    import { GetStack, GetStacks, CreateStack, ApplyOrder, ReorderStacks } from "../wailsjs/go/main/App"
 
     import * as ConfigStore from "../wailsjs/go/wailsconfigstore/ConfigStore"
 
@@ -48,9 +48,30 @@
         })
     }
 
+    function initStackOrder(stacks) {
+        const totalOrder = stacks.reduce((order, s) => order + s.order, 0)
+        if (totalOrder === 0) {
+            let order = 0
+            return {
+                stacks: stacks.map((stack) => {
+                    return {
+                        ...stack,
+                        order: order++
+                    }
+                }),
+                reordered: true
+            }
+        }
+        return { stacks, reordered: false }
+    }
+
     GetStacks()
         .then((result) => {
-            $stacks = result.sort((a, b) => a.order - b.order)
+            const { stacks: initStacks, reordered } = initStackOrder(result)
+            if (reordered) {
+                ReorderStacks(initStacks).catch(catchError)
+            }
+            $stacks = initStacks.sort((a, b) => a.order - b.order)
 
             ConfigStore.Get(`stack.tag_selections`, null)
                 .then((r) => {
@@ -126,16 +147,20 @@
                 const order = $stacks[$stacks.length - 1].order + 1
                 CreateStack(text)
                     .then((id) => {
+                        const stack = {
+                            ID: id,
+                            name: text,
+                            order,
+                        }
+
                         $stacks = [
                             ...$stacks,
-                            {
-                                ID: id,
-                                name: text,
-                                order,
-                            },
+                            stack,
                         ]
                         $tabSet = $stacks.length - 1
                         $tagSelections[id] = {}
+
+                        ApplyOrder(stack).catch(catchError)
                     })
                     .catch(catchError)
             },

@@ -4,6 +4,8 @@ import {main} from '../models';
 
 export function AddTask(arg1:number,arg2:main.TaskDelta,arg3:number):Promise<main.Task>;
 
+export function ApplyOrder(arg1:main.Stack):Promise<void>;
+
 export function CreateStack(arg1:string):Promise<number>;
 
 export function DeleteStack(arg1:number):Promise<number>;
