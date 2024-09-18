@@ -25,4 +25,4 @@ clean:
 clean-bin: clean
 	rm $(BIN)
 
-.PHONY: clean clean-bin
+.PHONY: appimage clean clean-bin
